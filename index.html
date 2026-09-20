@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام تتبع الشحنات</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B222C">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="الشحنات">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --asphalt:#1B222C;
+    --asphalt-2:#252E3A;
+    --steel:#4A5A6B;
+    --paper:#F3F0E9;
+    --paper-2:#E9E4D8;
+    --amber:#E5A639;
+    --amber-dark:#C4862A;
+    --rust:#B5502E;
+    --line:#D8D2C2;
+    --ok:#4C7A5E;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    font-family:'Tajawal', sans-serif;
+    color:var(--asphalt);
+    min-height:100vh;
+  }
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding:22px 16px 60px;
+  }
+
+  /* Header */
+  .head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+    padding-bottom:14px;
+    border-bottom:3px solid var(--asphalt);
+  }
+  .head h1{
+    font-family:'Cairo', sans-serif;
+    font-weight:800;
+    font-size:22px;
+    margin:0;
+    letter-spacing:0.3px;
+  }
+  .head .sub{
+    font-size:12.5px;
+    color:var(--steel);
+    margin-top:3px;
+  }
+  .truck-mark{
+    width:44px;height:44px;
+    border-radius:8px;
+    background:var(--asphalt);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .truck-mark svg{width:26px;height:26px;}
+
+  .top-archive-btn{
+    height:38px;
+    padding:0 16px;
+    background:var(--asphalt);
+    color:var(--amber);
+    border:none;
+    border-radius:8px;
+    font-family:'Cairo', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+    display:flex;align-items:center;gap:6px;
+    flex-shrink:0;
+    transition:filter .15s;
+  }
+  .top-archive-btn:hover{filter:brightness(1.3);}
+  .top-archive-btn:active{transform:scale(0.96);}
+
+  .toggle-form-btn{
+    width:100%;
+    padding:13px;
+    background:var(--asphalt);
+    color:var(--amber);
+    border:none;
+    border-radius:11px;
+    font-family:'Cairo', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    margin-bottom:16px;
+  }
+  .toggle-form-btn:active{transform:scale(0.98);}
+
+  .back-btn{
+    background:var(--amber);
+    color:var(--asphalt);
+    border:none;
+    border-radius:9px;
+    padding:11px 18px;
+    font-family:'Cairo', sans-serif;
+    font-weight:700;
+    font-size:13.5px;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .back-btn:active{transform:scale(0.97);}
+
+  .total-strip{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:var(--asphalt);
+    color:#B9C2CC;
+    border-radius:11px;
+    padding:12px 16px;
+    margin-bottom:14px;
+    font-size:13px;
+  }
+  .total-strip .total-strip-value{
+    font-family:'Cairo', sans-serif;
+    font-weight:800;
+    font-size:17px;
+    color:var(--amber);
+  }
+
+  .card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:18px;
+    margin-bottom:22px;
+  }
+  .card h2{
+    font-family:'Cairo', sans-serif;
+    font-size:16px;
+    font-weight:700;
+    margin:0 0 14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .field{
+    margin-bottom:13px;
+  }
+  .field label{
+    display:block;
+    font-size:13px;
+    color:var(--steel);
+    margin-bottom:5px;
+    font-weight:500;
+  }
+  .field input{
+    width:100%;
+    padding:11px 12px;
+    border:1.5px solid var(--line);
+    border-radius:9px;
+    font-family:'Tajawal', sans-serif;
+    font-size:16px;
+    background:var(--paper);
+    color:var(--asphalt);
+    transition:border-color .15s;
+  }
+  .field input:focus{
+    outline:none;
+    border-color:var(--amber-dark);
+    background:#fff;
+  }
+  .field-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  .field.money input{
+    font-family:'Cairo', sans-serif;
+    font-weight:700;
+  }
+
+  /* اختيار نوع الشحنة */
+  .type-btns{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-bottom:14px;
+  }
+  .type-btn{
+    padding:22px 10px;
+    border-radius:12px;
+    border:1.5px solid var(--line);
+    background:var(--paper);
+    font-family:'Cairo', sans-serif;
+    font-weight:800;
+    font-size:17px;
+    cursor:pointer;
+    color:var(--asphalt);
+    transition:border-color .15s, background .15s, transform .1s;
+  }
+  .type-btn .t-ico{display:block;font-size:26px;margin-bottom:8px;}
+  .type-btn:hover{border-color:var(--amber-dark);background:#fff;}
+  .type-btn:active{transform:scale(0.97);}
+
+  .type-cancel-btn{
+    width:100%;
+    padding:11px;
+    background:var(--paper-2);
+    color:var(--steel);
+    border:none;
+    border-radius:9px;
+    font-family:'Tajawal', sans-serif;
+    font-weight:700;
+    font-size:13.5px;
+    cursor:pointer;
+  }
+  .type-cancel-btn:hover{background:var(--line);}
+
+  /* رسالة منع العربية */
+  .ar-err{
+    color:var(--rust);
+    font-size:11.5px;
+    margin-top:4px;
+    display:none;
+    font-weight:700;
+  }
+  .field input.ar-blocked{
+    border-color:var(--rust);
+    background:#FDF3F0;
+  }
+
+  .submit-btn{
+    width:100%;
+    padding:13px;
+    background:var(--amber);
+    color:var(--asphalt);
+    border:none;
+    border-radius:9px;
+    font-family:'Cairo', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    margin-top:4px;
+    transition:background .15s, transform .1s;
+  }
+  .submit-btn:hover{background:var(--amber-dark);}
+  .submit-btn:active{transform:scale(0.98);}
+  .submit-btn:disabled{background:#D8D2C2;color:#9A9484;cursor:not-allowed;}
+
+  .err{
+    color:var(--rust);
+    font-size:12.5px;
+    margin-top:6px;
+    display:none;
+    font-weight:700;
+  }
+
+  .list-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+  }
+  .list-head h2{
+    font-family:'Cairo', sans-serif;
+    font-size:16px;
+    font-weight:700;
+    margin:0;
+  }
+  .count-badge{
+    background:var(--paper-2);
+    color:var(--steel);
+    font-size:12px;
+    padding:3px 10px;
+    border-radius:20px;
+    font-weight:500;
+  }
+
+  .shipment{
+    background:#fff;
+    border:1px solid var(--line);
+    border-right:4px solid var(--amber);
+    border-radius:10px;
+    padding:11px 13px;
+    margin-bottom:9px;
+  }
+  .shipment.archived{
+    border-right-color:var(--steel);
+    background:#FCFBF7;
+  }
+  .ship-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    margin-bottom:8px;
+  }
+  .ship-info{
+    text-align:left;
+    min-width:0;
+  }
+  .ship-driver{
+    font-family:'Cairo', sans-serif;
+    font-weight:800;
+    font-size:14.5px;
+    line-height:1.3;
+  }
+  .ship-accomp{
+    font-family:'Cairo', sans-serif;
+    font-weight:700;
+    font-size:11.5px;
+    color:var(--amber-dark);
+    margin-top:2px;
+  }
+  .ship-matricule{
+    font-family:'Cairo', sans-serif;
+    font-weight:800;
+    font-size:12px;
+    color:var(--steel);
+    margin-top:2px;
+  }
+  .ship-time{
+    font-family:'Cairo', sans-serif;
+    font-weight:700;
+    font-size:11px;
+    color:var(--steel);
+    margin-top:2px;
+  }
+  .price-block{
+    text-align:right;
+    flex-shrink:0;
+  }
+  .price-main{
+    font-family:'Cairo', sans-serif;
+    font-weight:800;
+    font-size:17px;
+    color:var(--ok);
+    white-space:nowrap;
+    padding-top:1px;
+  }
+  .price-adv{
+    font-family:'Cairo', sans-serif;
+    font-weight:700;
+    font-size:11.5px;
+    color:var(--rust);
+    white-space:nowrap;
+    margin-top:3px;
+  }
+  .ship-route{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    padding:5px 4px;
+    background:var(--paper);
+    border-radius:8px;
+    margin-bottom:8px;
+  }
+  .route-city{
+    text-align:center;
+    min-width:0;
+    flex:1;
+  }
+  .route-city .r-name{
+    font-family:'Cairo', sans-serif;
+    font-weight:800;
+    font-size:15.5px;
+    color:var(--asphalt);
+    word-break:break-word;
+  }
+  .route-arrow{
+    font-size:32px;
+    color:var(--amber-dark);
+    font-weight:800;
+    flex-shrink:0;
+    line-height:1;
+  }
+  .ship-actions-row{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .ship-actions-row .spacer{flex:1;}
+
+  .status-pill{
+    font-size:11px;
+    font-weight:700;
+    padding:3px 10px;
+    border-radius:20px;
+  }
+  .status-pill.pending{
+    background:#F0E6D2;
+    color:var(--amber-dark);
+  }
+  .status-pill.done{
+    background:#E1EEE5;
+    color:var(--ok);
+  }
+  .complete-btn{
+    background:var(--asphalt);
+    color:var(--amber);
+    border:none;
+    border-radius:7px;
+    padding:7px 12px;
+    font-size:12px;
+    font-weight:700;
+    font-family:'Tajawal', sans-serif;
+    cursor:pointer;
+  }
+  .complete-btn:hover{background:var(--asphalt-2);}
+  .invoice-btn-sm{
+    background:var(--ok);
+    color:#fff;
+    border:none;
+    border-radius:7px;
+    padding:7px 12px;
+    font-size:12px;
+    font-weight:700;
+    font-family:'Tajawal', sans-serif;
+    cursor:pointer;
+    transition:filter .15s;
+  }
+  .invoice-btn-sm:hover{filter:brightness(1.1);}
+  .invoice-btn-sm:active{transform:scale(0.96);}
+
+  .actions{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .act-btn{
+    border:none;
+    border-radius:7px;
+    padding:7px 11px;
+    font-size:12px;
+    font-weight:700;
+    font-family:'Tajawal', sans-serif;
+    cursor:pointer;
+    color:#fff;
+    transition:filter .15s, transform .1s;
+    white-space:nowrap;
+  }
+  .act-btn:hover{filter:brightness(1.12);}
+  .act-btn:active{transform:scale(0.96);}
+  .act-btn.edit{background:var(--amber-dark);}
+  .act-btn.archive{background:var(--steel);}
+  .act-btn.delete{background:var(--rust);}
+
+  .filter-bar{
+    margin-bottom:14px;
+  }
+  .filter-bar input{
+    width:100%;
+    padding:9px 11px;
+    border:1.5px solid var(--line);
+    border-radius:9px;
+    font-family:'Tajawal', sans-serif;
+    font-size:13.5px;
+    background:#fff;
+    color:var(--asphalt);
+  }
+  .filter-bar input:focus{
+    outline:none;
+    border-color:var(--amber-dark);
+  }
+
+  .card.editing{
+    border-color:var(--amber-dark);
+    border-width:1.5px;
+  }
+  .edit-banner{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#FBF1DD;
+    color:var(--amber-dark);
+    border-radius:8px;
+    padding:8px 12px;
+    font-size:12.5px;
+    font-weight:500;
+    margin-bottom:14px;
+  }
+  .edit-banner button{
+    background:none;
+    border:none;
+    color:var(--rust);
+    font-size:12px;
+    cursor:pointer;
+    font-family:'Tajawal', sans-serif;
+  }
+
+  .no-match{
+    text-align:center;
+    padding:28px 20px;
+    color:var(--steel);
+    font-size:13px;
+  }
+
+  .month-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:var(--asphalt);
+    color:var(--paper);
+    border-radius:9px;
+    padding:12px 14px;
+    margin:16px 0 10px;
+    font-family:'Cairo', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    user-select:none;
+    transition:filter .15s;
+  }
+  .month-header:hover{filter:brightness(1.25);}
+  #archiveListArea .month-header:first-child{margin-top:0;}
+  .month-chevron{
+    display:inline-block;
+    margin-left:8px;
+    font-size:12px;
+    color:var(--amber);
+  }
+  .month-meta{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .month-count{
+    background:var(--amber);
+    color:var(--asphalt);
+    font-size:11.5px;
+    font-weight:700;
+    padding:2px 10px;
+    border-radius:20px;
+  }
+  .month-total{
+    font-size:12px;
+    color:var(--amber);
+    font-weight:700;
+  }
+
+  .empty{
+    text-align:center;
+    padding:36px 20px;
+    color:var(--steel);
+    font-size:13.5px;
+    background:#fff;
+    border:1.5px dashed var(--line);
+    border-radius:12px;
+  }
+
+  .loading{
+    text-align:center;
+    padding:30px;
+    color:var(--steel);
+    font-size:13px;
+  }
+
+  @media (max-width:420px){
+    .wrap{padding:14px 10px 50px;}
+    .head h1{font-size:19px;}
+    .field-row{grid-template-columns:1fr;gap:13px;}
+    .route-city .r-name{font-size:14px;}
+    .act-btn{padding:7px 9px;font-size:11.5px;}
+    .invoice-btn-sm{padding:7px 10px;font-size:11.5px;}
+    .month-total{display:none;}
+    .top-archive-btn{padding:0 11px;font-size:12px;}
+  }
+
+  #lockScreen{
+    position:fixed;
+    inset:0;
+    background:var(--asphalt);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+    padding:20px;
+  }
+  .lock-card{
+    width:100%;
+    max-width:320px;
+    text-align:center;
+  }
+  .lock-mark{
+    width:56px;height:56px;
+    border-radius:12px;
+    background:var(--asphalt-2);
+    border:1.5px solid #3A4552;
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 18px;
+  }
+  .lock-mark svg{width:28px;height:28px;}
+  .lock-card h2{
+    font-family:'Cairo', sans-serif;
+    color:var(--paper);
+    font-size:18px;
+    margin:0 0 6px;
+  }
+  .lock-card p{
+    color:#8B96A3;
+    font-size:12.5px;
+    margin:0 0 20px;
+  }
+  .pin-input{
+    width:100%;
+    text-align:center;
+    letter-spacing:14px;
+    font-size:26px;
+    font-family:'Cairo', sans-serif;
+    font-weight:700;
+    padding:13px 10px 13px 24px;
+    border-radius:11px;
+    border:1.5px solid #3A4552;
+    background:var(--asphalt-2);
+    color:var(--paper);
+    margin-bottom:12px;
+  }
+  .pin-input:focus{outline:none;border-color:var(--amber-dark);}
+  .lock-err{
+    color:#E08A6B;
+    font-size:12.5px;
+    margin-bottom:12px;
+    display:none;
+  }
+  .lock-submit{
+    width:100%;
+    padding:13px;
+    background:var(--amber);
+    color:var(--asphalt);
+    border:none;
+    border-radius:11px;
+    font-family:'Cairo', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    margin-top:2px;
+  }
+  .lock-submit:hover{background:var(--amber-dark);}
+
+  .settings-btn{
+    width:38px;height:38px;
+    border-radius:8px;
+    background:none;
+    border:1.5px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .settings-btn svg{width:18px;height:18px;}
+  #settingsModal{
+    position:fixed;
+    inset:0;
+    background:rgba(27,34,44,0.65);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:110;
+    padding:20px;
+  }
+  .settings-card{
+    background:#fff;
+    border-radius:14px;
+    padding:20px;
+    width:100%;
+    max-width:340px;
+  }
+  .settings-card h2{
+    font-family:'Cairo', sans-serif;
+    font-size:16px;
+    margin:0 0 14px;
+  }
+  .settings-card .lock-err{color:var(--rust);}
+  .settings-card .ok-msg{
+    color:var(--ok);
+    font-size:12.5px;
+    margin-bottom:12px;
+    display:none;
+  }
+  .settings-actions{
+    display:flex;
+    gap:8px;
+    margin-top:4px;
+  }
+  .settings-actions button{
+    flex:1;
+    padding:11px;
+    border-radius:9px;
+    font-family:'Tajawal', sans-serif;
+    font-weight:700;
+    font-size:13.5px;
+    border:none;
+    cursor:pointer;
+  }
+  #savePinBtn{background:var(--amber);color:var(--asphalt);}
+  #savePinBtn:hover{background:var(--amber-dark);}
+  #cancelPinBtn{background:var(--paper-2);color:var(--steel);}
+</style>
+</head>
+<body>
+
+<div id="lockScreen">
+  <div class="lock-card">
+    <div class="lock-mark">
+      <svg viewBox="0 0 24 24" fill="none">
+        <rect x="5" y="10" width="14" height="10" rx="2" stroke="#E5A639" stroke-width="1.6"/>
+        <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="#E5A639" stroke-width="1.6"/>
+      </svg>
+    </div>
+    <h2 id="lockTitle">نظام تتبع الشحنات</h2>
+    <p id="lockSubtitle">أدخل الرمز السري للدخول</p>
+    <input type="password" id="pinInput" class="pin-input" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off" autofocus>
+    <div class="lock-err" id="lockErr">الرمز السري غير صحيح</div>
+    <button class="lock-submit" id="loginBtn">دخول</button>
+  </div>
+</div>
+
+<div id="settingsModal">
+  <div class="settings-card">
+    <h2>تغيير الرمز السري</h2>
+
+    <div class="field">
+      <label for="curPin">الرمز الحالي (للتأكيد)</label>
+      <input type="password" id="curPin" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="newPin">الرمز الجديد (4 أرقام)</label>
+      <input type="password" id="newPin" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+    </div>
+    <div class="lock-err" id="pinErr">الرمز الحالي غير صحيح</div>
+    <div class="ok-msg" id="pinOk">تم تحديث الرمز السري بنجاح</div>
+
+    <div class="settings-actions">
+      <button id="savePinBtn">حفظ</button>
+      <button id="cancelPinBtn">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap" id="appContent" style="display:none;">
+
+  <!-- ============ الصفحة الرئيسية ============ -->
+  <div id="mainPage">
+    <div class="head">
+      <div>
+        <h1>نظام تتبع الشحنات</h1>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button class="top-archive-btn" id="openArchiveBtn">🗄️ الأرشيف</button>
+        <button class="settings-btn" id="openSettingsBtn" title="تغيير الرمز السري">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="3" stroke="#4A5A6B" stroke-width="1.6"/>
+            <path d="M19.4 13a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V19a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.5 1z" stroke="#4A5A6B" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="truck-mark">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M2 7h11v9H2z" stroke="#E5A639" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M13 10h4l3 3v3h-7z" stroke="#E5A639" stroke-width="1.6" stroke-linejoin="round"/>
+            <circle cx="6" cy="17" r="1.7" stroke="#E5A639" stroke-width="1.6"/>
+            <circle cx="16.5" cy="17" r="1.7" stroke="#E5A639" stroke-width="1.6"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="total-strip">
+      <span>مجموع مبالغ التنقل</span>
+      <span class="total-strip-value" id="totalNavValue">0 DH</span>
+    </div>
+
+    <button class="toggle-form-btn" id="toggleFormBtn">+ إضافة شحنة جديدة</button>
+
+    <div class="card" id="formCard" style="display:none;">
+
+      <!-- اختيار نوع الشحنة -->
+      <div id="typeChoice">
+        <h2>اختر نوع الشحنة</h2>
+        <div class="type-btns">
+          <button class="type-btn" id="typeNormalBtn">
+            <span class="t-ico">🚛</span>Normal
+          </button>
+          <button class="type-btn" id="typeRapideBtn">
+            <span class="t-ico">⚡</span>Rapide
+          </button>
+        </div>
+        <button class="type-cancel-btn" id="typeCancelBtn">إلغاء</button>
+      </div>
+
+      <!-- نموذج الشحنة -->
+      <div id="formFields" style="display:none;">
+        <h2 id="formTitle">شحنة جديدة</h2>
+        <div class="edit-banner" id="editBanner" style="display:none;">
+          <span>جارٍ تعديل شحنة مسجَّلة</span>
+          <button id="cancelEditBtn">إلغاء التعديل</button>
+        </div>
+        <div class="field">
+          <label for="driver">اسم السائق</label>
+          <input type="text" id="driver">
+          <div class="ar-err" id="arErrDriver">⚠️ يُمنع الكتابة بالحروف العربية — استخدم الحروف اللاتينية</div>
+        </div>
+        <div class="field" id="accompField" style="display:none;">
+          <label for="accompDriver">اسم السائق المرافق</label>
+          <input type="text" id="accompDriver">
+          <div class="ar-err" id="arErrAccomp">⚠️ يُمنع الكتابة بالحروف العربية</div>
+        </div>
+        <div class="field">
+          <label for="matricule">رقم لوحة الشاحنة</label>
+          <input type="text" id="matricule">
+          <div class="ar-err" id="arErrMatricule">⚠️ يُمنع الكتابة بالحروف العربية — استخدم الحروف اللاتينية</div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="loadPlace">مكان التحميل</label>
+            <input type="text" id="loadPlace">
+            <div class="ar-err" id="arErrLoad">⚠️ يُمنع الكتابة بالحروف العربية</div>
+          </div>
+          <div class="field">
+            <label for="unloadPlace">مكان التفريغ</label>
+            <input type="text" id="unloadPlace">
+            <div class="ar-err" id="arErrUnload">⚠️ يُمنع الكتابة بالحروف العربية</div>
+          </div>
+        </div>
+        <div class="field money">
+          <label for="price">مبلغ التنقل (DH)</label>
+          <input type="number" id="price" step="0.01" inputmode="decimal">
+        </div>
+        <div class="field money" id="advanceField" style="display:none;">
+          <label for="advance">تسبيق (الاورو)</label>
+          <input type="number" id="advance" step="0.01" inputmode="decimal">
+        </div>
+        <div class="err" id="errMsg">يجب تعبئة جميع الحقول</div>
+        <button class="submit-btn" id="addBtn">تسجيل الشحنة</button>
+      </div>
+    </div>
+
+    <div class="list-head">
+      <h2>الشحنات المسجلة</h2>
+      <span class="count-badge" id="countBadge">0</span>
+    </div>
+
+    <div class="filter-bar">
+      <input type="text" id="searchInput" placeholder="ابحث: السائق، رقم اللوحة، مدينة التحميل أو التفريغ">
+    </div>
+
+    <div id="listArea">
+      <div class="loading">جارٍ تحميل البيانات...</div>
+    </div>
+  </div>
+
+  <!-- ============ صفحة الأرشيف ============ -->
+  <div id="archivePage" style="display:none;">
+    <div class="head">
+      <div>
+        <h1>أرشيف الشحنات</h1>
+        <div class="sub">مرتبة حسب الشهر — الشحنات مخفية، اضغط على الشهر لعرضها</div>
+      </div>
+      <button class="back-btn" id="backToMainBtn">→ العودة للرئيسية</button>
+    </div>
+
+    <div class="filter-bar">
+      <input type="text" id="archiveSearchInput" placeholder="ابحث في الأرشيف: السائق، رقم اللوحة، أو المدن">
+    </div>
+
+    <div id="archiveListArea"></div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+const STORAGE_KEY = 'shipments';
+const PIN_KEY = 'app_pin';
+const DRIVER_KEY = 'last_driver';
+const DEFAULT_PIN = '0000';
+
+let shipments = [];
+let editingId = null;
+let currentSearch = '';
+let archiveSearch = '';
+let expandedMonths = new Set();
+let currentType = null; /* 'normal' أو 'rapide' */
+
+/* ===== التخزين الدائم ===== */
+function lsSet(key, value){
+  try{ localStorage.setItem(key, value); return true; }catch(e){ return false; }
+}
+function lsGet(key){
+  try{ return localStorage.getItem(key); }catch(e){ return null; }
+}
+
+async function getValue(key){
+  const local = lsGet(key);
+  if(local !== null && local !== undefined) return local;
+  try{
+    if(window.storage && typeof window.storage.get === 'function'){
+      const result = await window.storage.get(key, false);
+      if(result && result.value !== null && result.value !== undefined){
+        lsSet(key, result.value);
+        return result.value;
+      }
+    }
+  }catch(e){}
+  return null;
+}
+
+async function setValue(key, value){
+  let ok = lsSet(key, value);
+  try{
+    if(window.storage && typeof window.storage.set === 'function'){
+      await window.storage.set(key, value, false);
+      ok = true;
+    }
+  }catch(e){}
+  return ok;
+}
+
+/* ===== منع الكتابة بالحروف العربية ===== */
+const ARABIC_RE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+const ARABIC_STRIP_RE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/g;
+
+const arabicGuardFields = [
+  {input:'driver',      err:'arErrDriver'},
+  {input:'accompDriver',err:'arErrAccomp'},
+  {input:'matricule',   err:'arErrMatricule'},
+  {input:'loadPlace',   err:'arErrLoad'},
+  {input:'unloadPlace', err:'arErrUnload'}
+];
+
+arabicGuardFields.forEach(f => {
+  const inp = document.getElementById(f.input);
+  const errEl = document.getElementById(f.err);
+  let hideTimer = null;
+
+  inp.addEventListener('input', () => {
+    if(ARABIC_RE.test(inp.value)){
+      inp.value = inp.value.replace(ARABIC_STRIP_RE, '');
+      errEl.style.display = 'block';
+      inp.classList.add('ar-blocked');
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => {
+        errEl.style.display = 'none';
+        inp.classList.remove('ar-blocked');
+      }, 3000);
+    } else {
+      errEl.style.display = 'none';
+      inp.classList.remove('ar-blocked');
+      clearTimeout(hideTimer);
+    }
+  });
+});
+
+function checkArabicOnPopulate(){
+  arabicGuardFields.forEach(f => {
+    const val = document.getElementById(f.input).value;
+    const hasAr = ARABIC_RE.test(val);
+    document.getElementById(f.err).style.display = hasAr ? 'block' : 'none';
+    document.getElementById(f.input).classList.toggle('ar-blocked', hasAr);
+  });
+}
+
+function monthKey(iso){
+  const d = new Date(iso);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+
+function monthLabel(key){
+  const [y,m] = key.split('-');
+  return m + '-' + y;
+}
+
+function fmtMoney(n){
+  const num = Math.round(n * 100) / 100;
+  return Number.isInteger(num) ? num.toString() : num.toFixed(2);
+}
+
+function fmtMoneyFR(n){
+  const num = Math.round(n * 100) / 100;
+  return num.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+function fmtDateTime(iso){
+  const d = new Date(iso);
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yyyy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return `${dd}-${mm}-${yyyy} · ${hh}:${mi}`;
+}
+
+function showPage(page){
+  document.getElementById('mainPage').style.display = (page === 'main') ? 'block' : 'none';
+  document.getElementById('archivePage').style.display = (page === 'archive') ? 'block' : 'none';
+  window.scrollTo(0, 0);
+  if(document.activeElement) document.activeElement.blur();
+}
+
+async function loadShipments(){
+  try{
+    const raw = await getValue(STORAGE_KEY);
+    shipments = raw ? JSON.parse(raw) : [];
+  }catch(e){
+    shipments = [];
+  }
+  renderAll();
+}
+
+async function getStoredPin(){
+  const v = await getValue(PIN_KEY);
+  return (v !== null && v !== undefined) ? v : DEFAULT_PIN;
+}
+
+function enterApp(){
+  document.getElementById('lockScreen').style.display = 'none';
+  document.getElementById('appContent').style.display = 'block';
+  if(document.activeElement) document.activeElement.blur();
+  loadShipments();
+}
+
+async function tryLogin(){
+  const pinInput = document.getElementById('pinInput');
+  const val = pinInput.value.trim();
+  const errEl = document.getElementById('lockErr');
+  const correctPin = await getStoredPin();
+
+  if(val === correctPin){
+    errEl.style.display = 'none';
+    enterApp();
+  } else {
+    errEl.style.display = 'block';
+    pinInput.value = '';
+    pinInput.focus();
+  }
+}
+
+function openSettings(){
+  document.getElementById('curPin').value = '';
+  document.getElementById('newPin').value = '';
+  document.getElementById('pinErr').style.display = 'none';
+  document.getElementById('pinOk').style.display = 'none';
+  document.getElementById('settingsModal').style.display = 'flex';
+  document.getElementById('curPin').focus();
+}
+
+function closeSettings(){
+  document.getElementById('settingsModal').style.display = 'none';
+  if(document.activeElement) document.activeElement.blur();
+}
+
+async function saveNewPin(){
+  const cur = document.getElementById('curPin').value.trim();
+  const next = document.getElementById('newPin').value.trim();
+  const errEl = document.getElementById('pinErr');
+  const correctPin = await getStoredPin();
+
+  if(cur !== correctPin){
+    errEl.textContent = 'الرمز الحالي غير صحيح';
+    errEl.style.display = 'block';
+    document.getElementById('curPin').value = '';
+    return;
+  }
+  if(!/^[0-9]{4}$/.test(next)){
+    errEl.textContent = 'يجب أن يتكون الرمز الجديد من 4 أرقام';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  const ok = await setValue(PIN_KEY, next);
+  if(ok){
+    document.getElementById('pinOk').style.display = 'block';
+    setTimeout(closeSettings, 1200);
+  }else{
+    errEl.textContent = 'تعذّر حفظ الرمز الجديد';
+    errEl.style.display = 'block';
+  }
+}
+
+document.getElementById('pinInput').addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0,4);
+  document.getElementById('lockErr').style.display = 'none';
+});
+document.getElementById('pinInput').addEventListener('keyup', e => {
+  if(e.key === 'Enter') tryLogin();
+});
+document.getElementById('loginBtn').addEventListener('click', tryLogin);
+document.getElementById('openSettingsBtn').addEventListener('click', openSettings);
+document.getElementById('cancelPinBtn').addEventListener('click', closeSettings);
+document.getElementById('savePinBtn').addEventListener('click', saveNewPin);
+document.getElementById('curPin').addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0,4);
+  document.getElementById('pinErr').style.display = 'none';
+});
+document.getElementById('newPin').addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0,4);
+  document.getElementById('pinErr').style.display = 'none';
+});
+document.getElementById('newPin').addEventListener('keyup', e => {
+  if(e.key === 'Enter') saveNewPin();
+});
+
+async function saveShipments(){
+  const ok = await setValue(STORAGE_KEY, JSON.stringify(shipments));
+  if(!ok) console.error('فشل حفظ البيانات');
+}
+
+function renderAll(){
+  render();
+  renderArchive();
+}
+
+function matchesSearch(s, q){
+  return !q ||
+    s.driver.toLowerCase().includes(q) ||
+    (s.accompDriver || '').toLowerCase().includes(q) ||
+    s.matricule.toLowerCase().includes(q) ||
+    s.loadPlace.toLowerCase().includes(q) ||
+    s.unloadPlace.toLowerCase().includes(q);
+}
+
+function calcTotalNav(){
+  return shipments
+    .filter(s => !(s.completed && s.archived))
+    .reduce((sum, s) => sum + s.price, 0);
+}
+
+function render(){
+  const active = shipments.filter(s => !s.archived);
+  document.getElementById('countBadge').textContent = active.length;
+
+  document.getElementById('totalNavValue').textContent = fmtMoney(calcTotalNav()) + ' DH';
+
+  const listArea = document.getElementById('listArea');
+  if(active.length === 0){
+    listArea.innerHTML = shipments.length === 0
+      ? '<div class="empty">لم تُسجَّل أي شحنة بعد. املأ الحقول أعلاه واضغط على "تسجيل الشحنة".</div>'
+      : '<div class="empty">لا توجد شحنات حالية. جميع الشحنات موجودة في الأرشيف.</div>';
+    return;
+  }
+
+  const q = currentSearch.trim().toLowerCase();
+  const filtered = active.filter(s => matchesSearch(s, q));
+
+  if(filtered.length === 0){
+    listArea.innerHTML = '<div class="no-match">لا توجد نتائج مطابقة للبحث.</div>';
+    return;
+  }
+
+  const sorted = filtered.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+  listArea.innerHTML = sorted.map(s => renderShipmentCard(s, false)).join('');
+}
+
+function renderArchive(){
+  const archived = shipments.filter(s => s.archived);
+  const area = document.getElementById('archiveListArea');
+
+  if(archived.length === 0){
+    area.innerHTML = '<div class="empty">لا توجد شحنات مؤرشفة بعد. عند أرشفة شحنة ستظهر هنا مرتبة حسب الشهر.</div>';
+    return;
+  }
+
+  const q = archiveSearch.trim().toLowerCase();
+  const filtered = archived.filter(s => matchesSearch(s, q));
+
+  if(filtered.length === 0){
+    area.innerHTML = '<div class="no-match">لا توجد نتائج مطابقة للبحث.</div>';
+    return;
+  }
+
+  const groups = {};
+  filtered.forEach(s => {
+    const k = monthKey(s.createdAt);
+    if(!groups[k]) groups[k] = [];
+    groups[k].push(s);
+  });
+  const keys = Object.keys(groups).sort().reverse();
+
+  area.innerHTML = keys.map(k => {
+    const items = groups[k].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const monthSum = items.reduce((sum, s) => sum + s.price, 0);
+    const isOpen = expandedMonths.has(k);
+    return `
+      <div class="month-header" onclick="toggleMonth('${k}')">
+        <span><span class="month-chevron">${isOpen ? '▼' : '◀'}</span>${monthLabel(k)}</span>
+        <span class="month-meta">
+          <span class="month-total" dir="ltr">${fmtMoney(monthSum)} DH</span>
+          <span class="month-count">${items.length} شحنة</span>
+        </span>
+      </div>
+      ${isOpen ? items.map(s => renderShipmentCard(s, true)).join('') : ''}
+    `;
+  }).join('');
+}
+
+function toggleMonth(k){
+  if(expandedMonths.has(k)) expandedMonths.delete(k);
+  else expandedMonths.add(k);
+  renderArchive();
+}
+
+function renderShipmentCard(s, isArchived){
+  const accomp = s.accompDriver ? `<div class="ship-accomp">👥 ${escapeHtml(s.accompDriver)}</div>` : '';
+  const adv = (s.advance && s.advance > 0)
+    ? `<div class="price-adv">تسبيق: <span dir="ltr">${fmtMoney(s.advance)} €</span></div>` : '';
+  return `
+  <div class="shipment ${isArchived ? 'archived' : ''}" data-id="${s.id}">
+    <div class="ship-top">
+      <div class="price-block">
+        <div class="price-main" dir="ltr">${fmtMoney(s.price)} DH</div>
+        ${adv}
+      </div>
+      <div class="ship-info">
+        <div class="ship-driver">${escapeHtml(s.driver)}</div>
+        ${accomp}
+        <div class="ship-matricule"><span dir="ltr">🚚 ${escapeHtml(s.matricule)}</span></div>
+        <div class="ship-time"><span dir="ltr">📅 ${fmtDateTime(s.createdAt)}</span></div>
+      </div>
+    </div>
+    <div class="ship-route" dir="ltr">
+      <div class="route-city">
+        <div class="r-name">${escapeHtml(s.loadPlace)}</div>
+      </div>
+      <div class="route-arrow">→</div>
+      <div class="route-city">
+        <div class="r-name">${escapeHtml(s.unloadPlace)}</div>
+      </div>
+    </div>
+    <div class="ship-actions-row">
+      <span class="status-pill ${s.completed ? 'done' : 'pending'}">${s.completed ? 'مكتملة' : 'قيد التنفيذ'}</span>
+      ${!s.completed ? `<button class="complete-btn" onclick="finishShipment('${s.id}')">شحنة مكتملة</button>` : ''}
+      <button class="invoice-btn-sm" onclick="downloadInvoice('${s.id}')">🧾 تحميل الفاتورة</button>
+      <span class="spacer"></span>
+      ${(!isArchived && !s.completed) ? `<button class="act-btn edit" onclick="editShipment('${s.id}')">✏️ تعديل</button>` : ''}
+      ${!isArchived ? `<button class="act-btn archive" onclick="archiveShipment('${s.id}')">🗄️ أرشفة</button>` : ''}
+      <button class="act-btn delete" onclick="deleteShipment('${s.id}')">🗑️ حذف</button>
+    </div>
+  </div>
+`;
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+async function deleteShipment(id){
+  if(!confirm('⚠️ هل تريد حذف هذه الشحنة نهائياً؟\nلا يمكن التراجع عن هذه العملية.')) return;
+  shipments = shipments.filter(s => s.id !== id);
+  if(editingId === id) cancelEdit();
+  renderAll();
+  await saveShipments();
+}
+
+async function archiveShipment(id){
+  if(!confirm('⚠️ هل تريد أرشفة هذه الشحنة؟\nستنتقل إلى قسم الأرشيف ولا يمكن استعادتها.')) return;
+  const idx = shipments.findIndex(s => s.id === id);
+  if(idx === -1) return;
+  shipments[idx].archived = true;
+  if(editingId === id) cancelEdit();
+  renderAll();
+  await saveShipments();
+}
+
+/* ===== فتح النموذج: عرض اختيار النوع أولاً ===== */
+function openFormCard(){
+  document.getElementById('formCard').style.display = 'block';
+  document.getElementById('toggleFormBtn').textContent = '– إخفاء النموذج';
+
+  if(editingId){
+    document.getElementById('typeChoice').style.display = 'none';
+    document.getElementById('formFields').style.display = 'block';
+    applyTypeFields(currentType);
+  } else {
+    document.getElementById('typeChoice').style.display = 'block';
+    document.getElementById('formFields').style.display = 'none';
+  }
+}
+
+function closeFormCard(){
+  document.getElementById('formCard').style.display = 'none';
+  document.getElementById('toggleFormBtn').textContent = '+ إضافة شحنة جديدة';
+  if(document.activeElement) document.activeElement.blur();
+}
+
+/* إظهار/إخفاء الخانات حسب النوع */
+function applyTypeFields(type){
+  /* Rapide: تظهر الخانتان — Normal: تسبيق فقط بدون السائق المرافق */
+  document.getElementById('accompField').style.display = (type === 'rapide') ? 'block' : 'none';
+  document.getElementById('advanceField').style.display = 'block';
+}
+
+function chooseType(type){
+  currentType = type;
+
+  document.getElementById('typeChoice').style.display = 'none';
+  document.getElementById('formFields').style.display = 'block';
+  document.getElementById('formTitle').textContent = type === 'rapide' ? 'شحنة جديدة — Rapide ⚡' : 'شحنة جديدة — Normal 🚛';
+
+  /* تعبئة آخر سائق (شحنة جديدة فقط) */
+  const driverInput = document.getElementById('driver');
+  const lastDriver = lsGet(DRIVER_KEY);
+  if(lastDriver && !driverInput.value.trim()){
+    driverInput.value = lastDriver;
+  }
+
+  applyTypeFields(type);
+  driverInput.focus();
+}
+
+function resetTypeChoice(){
+  currentType = null;
+  document.getElementById('typeChoice').style.display = 'block';
+  document.getElementById('formFields').style.display = 'none';
+  clearFormInputs();
+  document.getElementById('formTitle').textContent = 'شحنة جديدة';
+  document.getElementById('editBanner').style.display = 'none';
+  document.getElementById('formCard').classList.remove('editing');
+  document.getElementById('addBtn').textContent = 'تسجيل الشحنة';
+}
+
+function clearFormInputs(){
+  document.getElementById('driver').value = '';
+  document.getElementById('accompDriver').value = '';
+  document.getElementById('matricule').value = '';
+  document.getElementById('loadPlace').value = '';
+  document.getElementById('unloadPlace').value = '';
+  document.getElementById('price').value = '';
+  document.getElementById('advance').value = '';
+
+  arabicGuardFields.forEach(f => {
+    document.getElementById(f.err).style.display = 'none';
+    document.getElementById(f.input).classList.remove('ar-blocked');
+  });
+}
+
+function editShipment(id){
+  if(!confirm('هل تريد تعديل هذه الشحنة؟')) return;
+  const s = shipments.find(s => s.id === id);
+  if(!s) return;
+  editingId = id;
+  currentType = s.type || 'normal';
+
+  document.getElementById('driver').value = s.driver;
+  document.getElementById('accompDriver').value = s.accompDriver || '';
+  document.getElementById('matricule').value = s.matricule;
+  document.getElementById('loadPlace').value = s.loadPlace;
+  document.getElementById('unloadPlace').value = s.unloadPlace;
+  document.getElementById('price').value = s.price;
+  document.getElementById('advance').value = (s.advance && s.advance > 0) ? s.advance : '';
+
+  document.getElementById('formTitle').textContent = 'تعديل الشحنة';
+  document.getElementById('editBanner').style.display = 'flex';
+  document.getElementById('formCard').classList.add('editing');
+  document.getElementById('addBtn').textContent = 'تحديث الشحنة';
+  showPage('main');
+  openFormCard();
+  checkArabicOnPopulate();
+  document.getElementById('formCard').scrollIntoView({behavior:'smooth', block:'start'});
+  document.getElementById('driver').focus();
+}
+
+function cancelEdit(){
+  editingId = null;
+  clearFormInputs();
+
+  document.getElementById('formTitle').textContent = 'شحنة جديدة';
+  document.getElementById('editBanner').style.display = 'none';
+  document.getElementById('formCard').classList.remove('editing');
+  document.getElementById('addBtn').textContent = 'تسجيل الشحنة';
+  closeFormCard();
+  currentType = null;
+}
+
+async function finishShipment(id){
+  if(!confirm('هل تريد نقل هذه الشحنة إلى "مكتملة"؟')) return;
+  const idx = shipments.findIndex(s => s.id === id);
+  if(idx === -1) return;
+  shipments[idx].completed = true;
+  renderAll();
+  await saveShipments();
+}
+
+/* ===== الفاتورة PDF — فرنسية — عبر html2canvas (يدعم العربية بشكل صحيح) ===== */
+function invoiceHTML(s){
+  const d = new Date(s.createdAt);
+  const dateStr = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+  const amount = fmtMoneyFR(s.price) + ' DH';
+
+  return `
+  <div style="width:794px; min-height:1123px; background:#ffffff; padding:60px 64px; font-family:'Tajawal','Segoe UI',Tahoma,Arial,sans-serif; color:#1B222C;">
+    <div style="text-align:center;">
+      <div style="font-family:'Cairo','Segoe UI',Tahoma,Arial,sans-serif; font-size:36px; font-weight:800; color:#1B222C;">Facture de déplacement</div>
+      <div style="width:90px; height:4px; background:#E5A639; margin:16px auto 0; border-radius:2px;"></div>
+    </div>
+
+    <div style="margin-top:40px; font-size:15px; color:#4A5A6B;">Date : <b style="color:#1B222C; font-size:17px;">${dateStr}</b></div>
+
+    <div style="margin-top:22px; border:1px solid #D8D2C2; background:#FAF8F2; border-radius:16px; padding:28px 34px; display:flex;">
+      <div style="flex:1;">
+        <div style="font-size:12px; letter-spacing:2px; color:#4A5A6B; font-weight:bold; margin-bottom:12px;">CHAUFFEUR</div>
+        <div style="font-size:28px; font-weight:800; color:#1B222C;">${escapeHtml(s.driver)}</div>
+        ${s.accompDriver ? `<div style="font-size:14px; font-weight:700; color:#4A5A6B; margin-top:8px;">Accompagnateur : ${escapeHtml(s.accompDriver)}</div>` : ''}
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:12px; letter-spacing:2px; color:#4A5A6B; font-weight:bold; margin-bottom:12px;">MATRICULE</div>
+        <div style="font-size:28px; font-weight:800; color:#1B222C;">${escapeHtml(s.matricule)}</div>
+      </div>
+    </div>
+
+    <div style="margin-top:36px; font-size:13px; letter-spacing:2px; color:#4A5A6B; font-weight:bold;">TRAJET</div>
+    <div style="margin-top:12px; background:#F3F0E9; border-radius:16px; padding:30px 34px; display:flex; align-items:center; justify-content:space-between;">
+      <div style="text-align:center; flex:1;">
+        <div style="font-size:12px; color:#4A5A6B; font-weight:bold; margin-bottom:10px;">LIEU DE CHARGEMENT</div>
+        <div style="font-size:24px; font-weight:800; color:#1B222C;">${escapeHtml(s.loadPlace)}</div>
+      </div>
+      <div style="color:#C4862A; font-size:34px; font-weight:800; padding:0 22px;">&#10132;</div>
+      <div style="text-align:center; flex:1;">
+        <div style="font-size:12px; color:#4A5A6B; font-weight:bold; margin-bottom:10px;">LIEU DE DÉCHARGEMENT</div>
+        <div style="font-size:24px; font-weight:800; color:#1B222C;">${escapeHtml(s.unloadPlace)}</div>
+      </div>
+    </div>
+
+    <table style="width:100%; border-collapse:collapse; margin-top:40px;">
+      <thead>
+        <tr>
+          <th style="background:#1B222C; color:#ffffff; font-size:14px; text-align:left; padding:15px 18px;">DÉSIGNATION</th>
+          <th style="background:#1B222C; color:#ffffff; font-size:14px; text-align:right; padding:15px 18px; width:190px;">MONTANT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="border:1px solid #D8D2C2; padding:18px; font-size:15px; color:#1B222C;">Déplacement</td>
+          <td style="border:1px solid #D8D2C2; padding:18px; font-size:17px; font-weight:800; text-align:right; color:#1B222C;">${amount}</td>
+        </tr>
+        ${(s.advance && s.advance > 0) ? `
+        <tr>
+          <td style="border:1px solid #D8D2C2; padding:18px; font-size:15px; color:#1B222C;">Acompte (euro)</td>
+          <td style="border:1px solid #D8D2C2; padding:18px; font-size:17px; font-weight:800; text-align:right; color:#B5502E;">${fmtMoneyFR(s.advance)} €</td>
+        </tr>` : ''}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function invoiceFileName(s){
+  const d = new Date(s.createdAt);
+  const dateStr = String(d.getDate()).padStart(2,'0') + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + d.getFullYear();
+  const safeName = (s.driver || 'chauffeur')
+    .replace(/[^\p{L}\p{N}]+/gu, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 30) || 'chauffeur';
+  return 'Facture_' + safeName + '_' + dateStr + '.pdf';
+}
+
+async function downloadInvoice(id){
+  const s = shipments.find(x => x.id === id);
+  if(!s) return;
+
+  const fileName = invoiceFileName(s);
+
+  if(window.html2canvas && window.jspdf && window.jspdf.jsPDF){
+    const holder = document.createElement('div');
+    holder.dir = 'ltr';
+    holder.style.cssText = 'position:fixed; top:0; left:-10000px; width:794px; background:#ffffff; z-index:-1;';
+    holder.innerHTML = invoiceHTML(s);
+    document.body.appendChild(holder);
+
+    try{
+      if(document.fonts && document.fonts.ready){
+        try{ await document.fonts.ready; }catch(e){}
+      }
+      await new Promise(r => setTimeout(r, 150));
+
+      const canvas = await window.html2canvas(holder, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        useCORS: true,
+        windowWidth: 794
+      });
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({unit:'mm', format:'a4', orientation:'portrait'});
+      const pageW = 210;
+      const imgH = canvas.height * pageW / canvas.width;
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pageW, Math.min(imgH, 297));
+      pdf.save(fileName);
+      return;
+    }catch(e){
+      console.error('PDF generation error', e);
+    }finally{
+      holder.remove();
+    }
+  }
+
+  invoiceFallbackPrint(s, fileName);
+}
+
+function invoiceFallbackPrint(s, fileName){
+  const accompRow = s.accompDriver
+    ? '<div style="font-size:14px;font-weight:700;color:#4A5A6B;margin-top:8px;">Accompagnateur : ' + escapeHtml(s.accompDriver) + '</div>' : '';
+  const advRow = (s.advance && s.advance > 0)
+    ? '<tr><td style="border:1px solid #D8D2C2;padding:16px;font-size:15px;">Acompte (euro)</td><td class="amt" style="color:#B5502E;">' + fmtMoneyFR(s.advance) + ' €</td></tr>' : '';
+
+  const html = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>' + fileName + '</title>' +
+  '<style>' +
+  '@page{size:A4;margin:16mm;}' +
+  'body{font-family:"Tajawal","Segoe UI",Tahoma,Arial,sans-serif;color:#1B222C;margin:0;}' +
+  'h1{font-size:34px;text-align:center;margin:0;}' +
+  '.bar{width:90px;height:4px;background:#E5A639;margin:16px auto 34px;border-radius:2px;}' +
+  '.date{font-size:15px;color:#4A5A6B;margin-bottom:24px;} .date b{color:#1B222C;font-size:17px;}' +
+  '.box{border:1px solid #D8D2C2;background:#FAF8F2;border-radius:16px;padding:26px 32px;display:flex;margin-bottom:32px;}' +
+  '.box > div{flex:1;}' +
+  '.lbl{font-size:12px;letter-spacing:2px;color:#4A5A6B;font-weight:bold;margin-bottom:10px;}' +
+  '.val{font-size:26px;font-weight:800;}' +
+  '.route{background:#F3F0E9;border-radius:16px;padding:28px 32px;display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;}' +
+  '.route > div{flex:1;text-align:center;}' +
+  '.arrow{color:#C4862A;font-size:32px;font-weight:800;padding:0 20px;flex:0 !important;}' +
+  'table{width:100%;border-collapse:collapse;}' +
+  'th{background:#1B222C;color:#fff;font-size:14px;text-align:left;padding:14px 16px;}' +
+  'th:last-child,td:last-child{text-align:right;}' +
+  'td{border:1px solid #D8D2C2;padding:16px;font-size:15px;}' +
+  'td.amt{font-size:17px;font-weight:800;}' +
+  '</style></head><body dir="ltr">' +
+  '<h1>Facture de déplacement</h1><div class="bar"></div>' +
+  '<div class="date">Date : <b>' + new Date(s.createdAt).toLocaleDateString('fr-FR') + '</b></div>' +
+  '<div class="box">' +
+  '<div><div class="lbl">CHAUFFEUR</div><div class="val">' + escapeHtml(s.driver) + '</div>' + accompRow + '</div>' +
+  '<div><div class="lbl">MATRICULE</div><div class="val">' + escapeHtml(s.matricule) + '</div></div>' +
+  '</div>' +
+  '<div class="route">' +
+  '<div><div class="lbl">LIEU DE CHARGEMENT</div><div class="val" style="font-size:22px;">' + escapeHtml(s.loadPlace) + '</div></div>' +
+  '<div class="arrow">&#10132;</div>' +
+  '<div><div class="lbl">LIEU DE DÉCHARGEMENT</div><div class="val" style="font-size:22px;">' + escapeHtml(s.unloadPlace) + '</div></div>' +
+  '</div>' +
+  '<table><tr><th>DÉSIGNATION</th><th>MONTANT</th></tr>' +
+  '<tr><td>Déplacement</td><td class="amt">' + fmtMoneyFR(s.price) + ' DH</td></tr>' +
+  advRow +
+  '</table>' +
+  '</body></html>';
+
+  const win = window.open('', '_blank');
+  if(!win){
+    alert('يرجى السماح بالنوافذ المنبثقة لعرض الفاتورة.');
+    return;
+  }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+  setTimeout(() => { win.focus(); win.print(); }, 500);
+}
+
+async function addShipment(){
+  const driver = document.getElementById('driver').value.trim();
+  const accompDriver = document.getElementById('accompDriver').value.trim();
+  const matricule = document.getElementById('matricule').value.trim();
+  const loadPlace = document.getElementById('loadPlace').value.trim();
+  const unloadPlace = document.getElementById('unloadPlace').value.trim();
+  const priceRaw = document.getElementById('price').value;
+  const price = parseFloat(priceRaw);
+  const advanceRaw = document.getElementById('advance').value;
+  const advance = advanceRaw ? parseFloat(advanceRaw) : 0;
+
+  const errEl = document.getElementById('errMsg');
+
+  const missingBase = !driver || !matricule || !loadPlace || !unloadPlace || !priceRaw || isNaN(price) || price < 0;
+  /* Rapide: السائق المرافق مطلوب */
+  const missingAccomp = (currentType === 'rapide') && !accompDriver;
+  const badAdvance = isNaN(advance) || advance < 0;
+
+  if(missingBase || missingAccomp || badAdvance){
+    errEl.textContent = missingAccomp ? 'يجب تعبئة اسم السائق المرافق' : 'يجب تعبئة جميع الحقول';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  if(ARABIC_RE.test(driver) || ARABIC_RE.test(accompDriver) || ARABIC_RE.test(matricule) || ARABIC_RE.test(loadPlace) || ARABIC_RE.test(unloadPlace)){
+    errEl.textContent = '⚠️ يُمنع الكتابة بالحروف العربية — استخدم الحروف اللاتينية فقط';
+    errEl.style.display = 'block';
+    checkArabicOnPopulate();
+    return;
+  }
+
+  errEl.style.display = 'none';
+
+  const btn = document.getElementById('addBtn');
+  btn.disabled = true;
+  btn.textContent = editingId ? 'جارٍ التحديث...' : 'جارٍ التسجيل...';
+
+  if(editingId){
+    const idx = shipments.findIndex(s => s.id === editingId);
+    if(idx !== -1){
+      shipments[idx] = {
+        ...shipments[idx],
+        type: currentType,
+        driver, matricule, loadPlace, unloadPlace, price,
+        accompDriver: (currentType === 'rapide') ? accompDriver : '',
+        advance
+      };
+    }
+    renderAll();
+    await saveShipments();
+    cancelEdit();
+  } else {
+    /* حفظ اسم السائق لاستخدامه في الشحنة القادمة */
+    lsSet(DRIVER_KEY, driver);
+
+    const newShipment = {
+      id: Date.now().toString() + Math.random().toString(36).slice(2,7),
+      type: currentType,
+      driver, matricule, loadPlace, unloadPlace, price,
+      accompDriver: (currentType === 'rapide') ? accompDriver : '',
+      advance,
+      completed: false,
+      archived: false,
+      createdAt: new Date().toISOString()
+    };
+    shipments.push(newShipment);
+    renderAll();
+    await saveShipments();
+
+    clearFormInputs();
+    closeFormCard();
+    currentType = null;
+  }
+
+  btn.disabled = false;
+  btn.textContent = editingId ? 'تحديث الشحنة' : 'تسجيل الشحنة';
+}
+
+document.getElementById('addBtn').addEventListener('click', addShipment);
+document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
+
+document.getElementById('toggleFormBtn').addEventListener('click', () => {
+  const isOpen = document.getElementById('formCard').style.display !== 'none';
+  if(isOpen){
+    closeFormCard();
+    if(!editingId){
+      currentType = null;
+      clearFormInputs();
+    }
+  } else {
+    openFormCard();
+  }
+});
+
+/* أزرار اختيار النوع */
+document.getElementById('typeNormalBtn').addEventListener('click', () => chooseType('normal'));
+document.getElementById('typeRapideBtn').addEventListener('click', () => chooseType('rapide'));
+document.getElementById('typeCancelBtn').addEventListener('click', () => {
+  closeFormCard();
+  currentType = null;
+  clearFormInputs();
+});
+
+document.querySelectorAll('#formCard .field input').forEach(inp => {
+  inp.addEventListener('keydown', e => {
+    if(e.key === 'Enter') addShipment();
+  });
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  currentSearch = e.target.value;
+  render();
+});
+
+document.getElementById('archiveSearchInput').addEventListener('input', e => {
+  archiveSearch = e.target.value;
+  renderArchive();
+});
+
+document.getElementById('openArchiveBtn').addEventListener('click', () => {
+  showPage('archive');
+  renderArchive();
+});
+
+document.getElementById('backToMainBtn').addEventListener('click', () => {
+  showPage('main');
+});
+
+document.getElementById('pinInput').focus();
+
+/* ===== تسجيل Service Worker (PWA) ===== */
+if('serviceWorker' in navigator && location.protocol !== 'file:'){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(err => {
+      console.log('SW registration failed:', err);
+    });
+  });
+}
+</script>
+</body>
+</html>
